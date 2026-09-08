@@ -1,4 +1,4 @@
-# Snowflake Healthcare Coding Review
+# Healthcare Coding Review
 
 I built this Snowflake SQL project to compare diagnosis groups found in submitted claims with diagnosis groups found in clinical documentation.
 
