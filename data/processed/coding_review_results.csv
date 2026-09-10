@@ -1,0 +1,15 @@
+patient_id,patient_name,demo_condition_group,submitted_codes,documented_codes,latest_claim_date,latest_documentation_date,submitted_present,documented_present,review_status,review_reason
+1,Coding Patient 001,DEMO_CARDIOVASCULAR,I10,I10,2026-05-01,2026-01-10,True,True,Captured,Condition group appears in both submitted claims and documentation
+1,Coding Patient 001,DEMO_DIABETES,E11.9,E11.9,2026-01-10,2026-01-10,True,True,Captured,Condition group appears in both submitted claims and documentation
+2,Coding Patient 002,DEMO_DIABETES,E11.9,E11.9,2026-01-18,2026-01-18,True,True,Captured,Condition group appears in both submitted claims and documentation
+3,Coding Patient 003,DEMO_CARDIOVASCULAR,I10,I10,2026-02-02,2026-02-02,True,True,Captured,Condition group appears in both submitted claims and documentation
+3,Coding Patient 003,DEMO_DIABETES,,E11.9,,2026-02-02,False,True,Potential Gap Review Required,Documented condition group is absent from submitted claims in the review period
+4,Coding Patient 004,DEMO_CARDIOVASCULAR,I10,I10,2026-02-20,2026-02-20,True,True,Captured,Condition group appears in both submitted claims and documentation
+4,Coding Patient 004,DEMO_LUNG,J44.9,,2026-02-20,,True,False,Submitted Code Documentation Review Required,Submitted condition group is absent from documentation in the review period
+5,Coding Patient 005,DEMO_HEART_FAILURE,I50.9,I50.9,2026-03-05,2026-03-05,True,True,Captured,Condition group appears in both submitted claims and documentation
+6,Coding Patient 006,DEMO_CARDIOVASCULAR,I10,I10,2026-03-19,2026-03-19,True,True,Captured,Condition group appears in both submitted claims and documentation
+6,Coding Patient 006,DEMO_KIDNEY,,N18.31,,2026-03-19,False,True,Potential Gap Review Required,Documented condition group is absent from submitted claims in the review period
+7,Coding Patient 007,DEMO_BEHAVIORAL,F32.9,F32.9,2026-04-08,2026-04-08,True,True,Captured,Condition group appears in both submitted claims and documentation
+8,Coding Patient 008,DEMO_CARDIOVASCULAR,I10,I10,2026-04-27,2026-04-27,True,True,Captured,Condition group appears in both submitted claims and documentation
+8,Coding Patient 008,DEMO_LUNG,,J44.9,,2026-04-27,False,True,Potential Gap Review Required,Documented condition group is absent from submitted claims in the review period
+9,Coding Patient 009,DEMO_LUNG,J44.9,,2026-05-11,,True,False,Submitted Code Documentation Review Required,Submitted condition group is absent from documentation in the review period

@@ -1,155 +1,162 @@
 # Healthcare Coding Review
 
-I built this Snowflake SQL project to compare diagnosis groups found in submitted claims with diagnosis groups found in clinical documentation.
+I built this project to compare diagnosis groups found in submitted claims with diagnosis groups found in clinical documentation. I wanted the result to be useful for review while keeping every decision traceable to the records that produced it.
 
-I used synthetic healthcare data to identify matches and differences between the two sources. The final output separates captured diagnosis groups from records that require human review.
+I used synthetic data throughout the project. The application does not determine whether a diagnosis is correct and does not change a claim. It identifies differences that a person can investigate.
 
-## Why I built this project
+## What I built
 
-While working with patient intake and clinical documentation, I saw how diagnosis information can appear across different records.
+I created two working implementations of the same comparison logic.
 
-I wanted to explore how SQL could compare submitted claim information with documented information while keeping every result traceable to its source.
+The Snowflake implementation models the warehouse workflow with relational tables, reusable mappings, transformation queries, analytical views, audit records, and data quality checks.
 
-I designed the project to identify records for review. It does not automatically add, remove, or change diagnosis codes.
+The Python implementation runs the full workflow locally. It reads source files, validates their structure and relationships, applies the review period, reconciles diagnosis groups, explains each result, and writes the final outputs safely.
 
-## How the pipeline works
+I also built an interactive Streamlit dashboard and a read only FastAPI service so the results can be explored through both a visual application and an application interface.
 
-```mermaid
-flowchart TD
-    A[Submitted claim diagnoses] --> C[Diagnosis group mapping]
-    B[Documented diagnoses] --> C
-    C --> D[Patient and condition summaries]
-    D --> E[Full outer comparison]
-    E --> F[Captured results]
-    E --> G[Human review queue]
-    C --> H[Unmapped diagnosis report]
-```
-
-I built the pipeline to complete the following steps.
-
-1. I load synthetic patient, claim, and diagnosis records.
-2. I map diagnosis codes from both sources to the same condition groups.
-3. I summarize the submitted groups for each patient.
-4. I summarize the documented groups for each patient.
-5. I compare both summaries with a full outer join.
-6. I classify each patient and condition group combination.
-7. I create a queue containing the differences that require human review.
-8. I keep unmapped diagnosis codes visible in a separate report.
-
-## Important design decision
-
-A patient can have several claims, and each claim can contain several diagnosis codes. The documentation can also contain several diagnosis records for the same patient.
-
-I first mapped and summarized each source separately. This gave me one row for each patient and condition group before I compared the two sources.
-
-I then used a full outer join so I could retain all three possible outcomes.
-
-1. The condition group appears in both sources.
-2. The condition group appears only in the documentation.
-3. The condition group appears only in the submitted claims.
-
-An inner join would have retained only the matches and removed the differences that I wanted to review.
-
-## Review statuses
-
-| Status | Meaning |
-|---|---|
-| `Captured` | I found the condition group in both the submitted claims and the documentation |
-| `Potential Gap - Review Required` | I found the condition group in the documentation but not in the submitted claims |
-| `Submitted Code - Documentation Review Required` | I found the condition group in the submitted claims but not in the documentation |
-
-These statuses identify records for review. They do not prove that a coding error occurred.
-
-## Features
-
-* I separated patient, claim, submitted diagnosis, documented diagnosis, mapping, result, and audit data
-* I used a configurable review period
-* I used a full outer join to preserve matches and both types of differences
-* I retained submitted and documented diagnosis code lists for traceability
-* I prevented repeated claims from creating duplicate patient and condition group results
-* I excluded voided claims and records outside the review period
-* I created a separate report for diagnosis codes missing from the mapping table
-* I created readable review statuses and explanations
-* I used only synthetic data with no protected health information or credentials
-
-## Repository structure
-
-| Path | What I included |
-|---|---|
-| `sql/01_setup.sql` | I create the source, mapping, result, configuration, and audit tables |
-| `sql/02_seed_synthetic_data.sql` | I load synthetic matches, differences, excluded records, and unmapped codes |
-| `sql/03_build_results.sql` | I map, summarize, compare, and classify the diagnosis groups |
-| `sql/04_analysis_views.sql` | I create the human review queue, status summary, and unmapped code views |
-| `sql/05_data_quality_tests.sql` | I check counts, uniqueness, filtering, status logic, and table relationships |
-| `sample_output/` | I provide the expected results from the synthetic data |
-| `tests/` | I provide automated tests for the expected output |
-| `docs/` | I provide the data dictionary and technical documentation |
-
-## How to run the project in Snowflake
-
-1. I sign in to Snowflake and open a SQL worksheet.
-2. I select a warehouse that I have permission to use.
-3. I run `sql/01_setup.sql`.
-4. I run `sql/02_seed_synthetic_data.sql`.
-5. I run `sql/03_build_results.sql`.
-6. I run `sql/04_analysis_views.sql`.
-7. I run `sql/05_data_quality_tests.sql`.
-8. I confirm that the validation checks return `PASS`.
-9. I confirm that the exception queries return zero rows.
-10. I compare the results with the files in `sample_output/`.
-
-The setup script uses `CREATE OR REPLACE TABLE`. I only run it inside the designated practice database and schema.
-
-## Expected results
+## Results
 
 My synthetic dataset produces 14 patient and condition group comparisons.
 
-| Status | Comparisons |
-|---|---:|
-| Captured | 9 |
-| Potential Gap - Review Required | 3 |
-| Submitted Code - Documentation Review Required | 2 |
+1. Nine groups appear in both sources and receive a Captured status
+2. Three groups appear only in documentation and receive a Potential Gap Review Required status
+3. Two groups appear only in submitted claims and receive a Submitted Code Documentation Review Required status
+4. Five differences enter the human review queue
+5. Two intentionally unmapped diagnosis codes remain visible for investigation
 
-The five differences appear in the human review queue.
+## How my pipeline works
 
-I also included two intentionally unmapped diagnosis codes. `Z00.00` appears on the submitted claims side, and `E78.5` appears on the documentation side. I keep both codes visible in the unmapped diagnosis report instead of allowing them to disappear from the analysis.
+```mermaid
+flowchart TD
+    A[Submitted diagnoses] --> C[Validation and mapping]
+    B[Documented diagnoses] --> C
+    C --> D[Patient condition summaries]
+    D --> E[Full source comparison]
+    E --> F[Review results]
+    F --> G[Dashboard and API]
+    C --> H[Unmapped code report]
+```
 
-## Example patient result
+I validate each input before running the comparison. I check required columns, unique identifiers, and relationships between patients, claims, and diagnosis records.
 
-Patient 003 has `I10` in both the submitted claims and the documentation. I map `I10` to `DEMO_CARDIOVASCULAR`, so that patient and condition group combination receives a `Captured` status.
+I filter both sources with the same review period and mapping version. I summarize each source to one record for each patient and condition group before comparing them. This prevents repeated claims or diagnoses from inflating the results.
 
-The same patient also has documented `E11.9`, which I map to `DEMO_DIABETES`. Because that condition group does not appear in the submitted claims, it receives a `Potential Gap - Review Required` status.
+I use a full source comparison so I retain matches and differences from either side. I assign a clear reason to every result and keep supporting diagnosis codes and dates available for review.
 
-The pipeline places that difference in the human review queue. It does not automatically add the diagnosis to a claim.
+I write each output through an atomic file operation. This prevents a failed run from leaving behind a partially written result file.
 
-## Validation
+## Project structure
 
-I included SQL checks that confirm the following results.
+`src/coding_review` contains the reusable Python package
 
-* I produce 14 patient and condition group comparisons
-* I produce 9 captured results
-* I produce 3 potential gap results
-* I produce 2 submitted code review results
-* I produce 5 records in the human review queue
-* I do not create duplicate patient and condition group results
-* I exclude voided claims
-* I exclude records outside the configured review period
-* I keep unmapped diagnosis codes visible
-* I assign each status according to the submitted and documented indicators
+`data/raw` contains the synthetic source records
 
-I also checked the SQL files with SQLFluff using the Snowflake dialect and tested the comparison logic against the included synthetic data.
+`data/processed` contains reproducible pipeline outputs
 
-## Technologies and skills
+`sql` contains the Snowflake data model and transformation workflow
 
-* Snowflake SQL
-* Relational data modeling
-* Common table expressions
-* Full outer joins
-* Conditional logic with `CASE` and `IFF`
-* Diagnosis code mapping
-* Aggregation with `LISTAGG`
-* Data deduplication
-* Source traceability
-* Analytical views
-* Data quality testing
-* Technical documentation
+`app/dashboard.py` contains the Streamlit review application
+
+`app/api.py` contains the FastAPI service
+
+`tests` contains unit, integration, edge case, and output tests
+
+`docs` contains the data dictionary and technical walkthrough
+
+`.github/workflows` contains the automated quality workflow
+
+## Run the Python pipeline
+
+I use Python 3.11 or newer.
+
+```bash
+python -m pip install -e ".[app,dev]"
+coding-review
+```
+
+The command reads the files in `data/raw` and writes the results to `data/processed`.
+
+I can choose a different review period or mapping version when needed.
+
+```bash
+coding-review \
+  --start-date 2026-01-01 \
+  --end-date 2026-06-30 \
+  --mapping-version DEMO_V1
+```
+
+## Run the dashboard
+
+```bash
+streamlit run app/dashboard.py
+```
+
+The dashboard presents result totals, review status counts, record filtering, patient and condition search, downloadable results, and unmapped diagnosis monitoring.
+
+## Run the application interface
+
+```bash
+uvicorn app.api:app --reload
+```
+
+I included a health check, a filtered review results endpoint, and a summary endpoint. FastAPI provides interactive documentation after the service starts.
+
+## Run the tests
+
+```bash
+python -m pytest
+```
+
+My tests verify the expected status totals, unique output grain, unmapped code visibility, voided claim exclusion, review period filtering, duplicate evidence handling, configuration validation, input contracts, and output creation.
+
+The automated GitHub workflow also checks the Python code, parses the Snowflake SQL, runs the pipeline, and measures test coverage whenever I push a change or open a pull request.
+
+## Run the Snowflake workflow
+
+I run the numbered files in the `sql` folder in order inside a designated practice database and schema.
+
+1. `01_setup.sql`
+2. `02_seed_synthetic_data.sql`
+3. `03_build_results.sql`
+4. `04_analysis_views.sql`
+5. `05_data_quality_tests.sql`
+
+The final validation script checks source totals, output totals, output grain, excluded records, relationship integrity, and review status logic.
+
+## Engineering decisions
+
+I keep diagnosis mappings outside the comparison logic so I can update a mapping version without rewriting the pipeline.
+
+I preserve unmapped codes instead of silently dropping them. This makes data quality problems visible.
+
+I aggregate each source before comparing it. This protects the final patient and condition grain from many to many join inflation.
+
+I separate domain logic from the dashboard and API. The same reconciliation code can support different interfaces without being duplicated.
+
+I use only synthetic information. The repository contains no protected health information, account credentials, or proprietary coding mappings.
+
+## Limitations
+
+I created the condition groups for this educational project. They are not official CMS HCC mappings and cannot support real coding decisions.
+
+The project demonstrates a repeatable batch workflow with a small synthetic dataset. A production implementation would require approved mappings, access controls, secure infrastructure, monitoring, governance, and review by qualified coding and compliance professionals.
+
+## Technologies
+
+Python
+
+Snowflake SQL
+
+Streamlit
+
+FastAPI
+
+Pytest
+
+Ruff
+
+SQLFluff
+
+GitHub Actions
+
+Docker

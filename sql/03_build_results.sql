@@ -194,9 +194,9 @@ SELECT
             THEN 'Captured'
         WHEN NOT submitted_present
             AND documented_present
-            THEN 'Potential Gap - Review Required'
+            THEN 'Potential Gap Review Required'
         ELSE
-            'Submitted Code - Documentation Review Required'
+            'Submitted Code Documentation Review Required'
     END AS review_status,
     CASE
         WHEN submitted_present
@@ -241,11 +241,11 @@ SELECT
         review_status = 'Captured'
     ) AS captured_count,
     COUNT_IF(
-        review_status = 'Potential Gap - Review Required'
+        review_status = 'Potential Gap Review Required'
     ) AS potential_gap_count,
     COUNT_IF(
         review_status =
-            'Submitted Code - Documentation Review Required'
+            'Submitted Code Documentation Review Required'
     ) AS documentation_review_count
 FROM CODING_REVIEW_RESULT
 GROUP BY review_end_date;

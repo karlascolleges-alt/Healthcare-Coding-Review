@@ -1,9 +1,9 @@
 import csv
+import pathlib
 import unittest
-from pathlib import Path
 
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = pathlib.Path(__file__).resolve().parents[1]
 
 
 class ExpectedOutputTests(unittest.TestCase):
@@ -19,12 +19,12 @@ class ExpectedOutputTests(unittest.TestCase):
         self.assertEqual(sum(counts.values()), 14)
         self.assertEqual(counts["Captured"], 9)
         self.assertEqual(
-            counts["Potential Gap - Review Required"],
+            counts["Potential Gap Review Required"],
             3,
         )
         self.assertEqual(
             counts[
-                "Submitted Code - Documentation Review Required"
+                "Submitted Code Documentation Review Required"
             ],
             2,
         )
