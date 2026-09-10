@@ -7,7 +7,6 @@ __pycache__/
 *.log
 .coverage
 .pytest_cache/
-.ruffLinearity
 .ruff_cache/
 *.egg-info/
 dist/
