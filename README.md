@@ -117,52 +117,26 @@ My tests verify the expected status totals, unique output grain, unmapped code v
 
 The automated GitHub workflow also checks the Python code, parses the Snowflake SQL, runs the pipeline, and measures test coverage whenever I push a change or open a pull request.
 
-## Run the Snowflake workflow
-
-I run the numbered files in the `sql` folder in order inside a designated practice database and schema.
-
-1. `01_setup.sql`
-2. `02_seed_synthetic_data.sql`
-3. `03_build_results.sql`
-4. `04_analysis_views.sql`
-5. `05_data_quality_tests.sql`
-
-The final validation script checks source totals, output totals, output grain, excluded records, relationship integrity, and review status logic.
-
 ## Engineering decisions
 
 I keep diagnosis mappings outside the comparison logic so I can update a mapping version without rewriting the pipeline.
-
 I preserve unmapped codes instead of silently dropping them. This makes data quality problems visible.
-
 I aggregate each source before comparing it. This protects the final patient and condition grain from many to many join inflation.
-
 I separate domain logic from the dashboard and API. The same reconciliation code can support different interfaces without being duplicated.
-
 I use only synthetic information. The repository contains no protected health information, account credentials, or proprietary coding mappings.
 
 ## Limitations
 
-I created the condition groups for this educational project. They are not official CMS HCC mappings and cannot support real coding decisions.
-
-The project demonstrates a repeatable batch workflow with a small synthetic dataset. A production implementation would require approved mappings, access controls, secure infrastructure, monitoring, governance, and review by qualified coding and compliance professionals.
+The project demonstrates a repeatable batch workflow with a small synthetic dataset
 
 ## Technologies
 
 Python
-
 Snowflake SQL
-
 Streamlit
-
 FastAPI
-
 Pytest
-
 Ruff
-
 SQLFluff
-
 GitHub Actions
-
 Docker
