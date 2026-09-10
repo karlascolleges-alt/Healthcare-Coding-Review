@@ -1,5 +1,11 @@
 # Healthcare Coding Review
 
+## Live application
+
+I built an interactive dashboard to explore the coding review results, filter patient and condition records, examine unmapped diagnosis codes, and download the review queue.
+
+[Open the live application](https://healthcare-coding-review.streamlit.app/)
+
 I built this project to compare diagnosis groups found in submitted claims with diagnosis groups found in clinical documentation. I wanted the result to be useful for review while keeping every decision traceable to the records that produced it.
 
 I used synthetic data throughout the project. The application does not determine whether a diagnosis is correct and does not change a claim. It identifies differences that a person can investigate.
