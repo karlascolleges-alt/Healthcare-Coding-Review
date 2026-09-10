@@ -1,7 +1,6 @@
 """Input contracts and relationship validation."""
 
 from collections import Counter
-from collections.abc import Iterable
 
 from .exceptions import DataValidationError
 
@@ -34,7 +33,7 @@ def validate_columns(name: str, rows: list[dict[str, str]]) -> None:
         raise DataValidationError(f"{name} is missing columns: {sorted(missing)}")
 
 
-def validate_unique(name: str, rows: Iterable[dict[str, str]], key: str) -> None:
+def validate_unique(name: str, rows: list[dict[str, str]], key: str) -> None:
     counts = Counter(row[key] for row in rows)
     duplicates = sorted(value for value, count in counts.items() if count > 1)
     if duplicates:
