@@ -1,8 +1,7 @@
 """Reproducible diagnosis reconciliation pipeline."""
 
 from collections import Counter, defaultdict
-from datetime import date, datetime, timezone
-from pathlib import Path
+ffrom datetime import UTC, date, datetime
 
 from .config import ReviewConfig
 from .io import read_csv, write_csv_atomic
@@ -77,7 +76,7 @@ class ReviewPipeline:
         unmapped = self._unmapped_rows(unmapped_submitted, unmapped_documented)
         audit = [
             {
-                "run_id": datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ"),
+                "run_id": datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ"),
                 "review_start_date": self.config.review_start_date.isoformat(),
                 "review_end_date": self.config.review_end_date.isoformat(),
                 "mapping_version": self.config.mapping_version,
