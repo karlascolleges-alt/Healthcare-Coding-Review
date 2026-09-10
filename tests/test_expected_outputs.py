@@ -19,12 +19,12 @@ class ExpectedOutputTests(unittest.TestCase):
         self.assertEqual(sum(counts.values()), 14)
         self.assertEqual(counts["Captured"], 9)
         self.assertEqual(
-            counts["Potential Gap - Review Required"],
+            counts["Potential Gap Review Required"],
             3,
         )
         self.assertEqual(
             counts[
-                "Submitted Code - Documentation Review Required"
+                "Submitted Code Documentation Review Required"
             ],
             2,
         )

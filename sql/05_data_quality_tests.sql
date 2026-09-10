@@ -36,13 +36,13 @@ WITH EXPECTED AS (
     UNION ALL
 
     SELECT
-        'Potential Gap - Review Required',
+        'Potential Gap Review Required',
         3
 
     UNION ALL
 
     SELECT
-        'Submitted Code - Documentation Review Required',
+        'Submitted Code Documentation Review Required',
         2
 ),
 
@@ -133,7 +133,7 @@ WHERE (
     AND NOT documented_present
 )
 OR (
-    review_status = 'Potential Gap - Review Required'
+    review_status = 'Potential Gap Review Required'
     AND (
         submitted_present
         OR NOT documented_present
@@ -141,7 +141,7 @@ OR (
 )
 OR (
     review_status =
-        'Submitted Code - Documentation Review Required'
+        'Submitted Code Documentation Review Required'
     AND (
         NOT submitted_present
         OR documented_present

@@ -106,14 +106,14 @@ I use a `CASE` statement to assign one of three statuses.
 | Submitted | Documented | Status |
 |---|---|---|
 | Yes | Yes | `Captured` |
-| No | Yes | `Potential Gap - Review Required` |
-| Yes | No | `Submitted Code - Documentation Review Required` |
+| No | Yes | `Potential Gap Review Required` |
+| Yes | No | `Submitted Code Documentation Review Required` |
 
 I assign `Captured` when the condition group appears in both sources.
 
-I assign `Potential Gap - Review Required` when the condition group appears in the documentation but not in the submitted claims.
+I assign `Potential Gap Review Required` when the condition group appears in the documentation but not in the submitted claims.
 
-I assign `Submitted Code - Documentation Review Required` when the condition group appears in the submitted claims but not in the documentation.
+I assign `Submitted Code Documentation Review Required` when the condition group appears in the submitted claims but not in the documentation.
 
 These statuses identify records for human review. They do not prove that a coding error occurred.
 
@@ -136,8 +136,8 @@ My synthetic data produces the following results.
 | Status | Count |
 |---|---:|
 | `Captured` | 9 |
-| `Potential Gap - Review Required` | 3 |
-| `Submitted Code - Documentation Review Required` | 2 |
+| `Potential Gap Review Required` | 3 |
+| `Submitted Code Documentation Review Required` | 2 |
 
 The complete output contains 14 patient and condition group comparisons.
 
@@ -182,7 +182,7 @@ The documentation for Patient 003 contains `I10` and `E11.9`.
 
 I map `I10` to `DEMO_CARDIOVASCULAR`. Because this group appears in both sources, I classify it as `Captured`.
 
-I map `E11.9` to `DEMO_DIABETES`. Because this group appears only in the documentation, I classify it as `Potential Gap - Review Required`.
+I map `E11.9` to `DEMO_DIABETES`. Because this group appears only in the documentation, I classify it as `Potential Gap Review Required`.
 
 I place the diabetes result in the human review queue. I do not automatically add the diagnosis to a claim.
 
