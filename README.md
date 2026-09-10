@@ -71,52 +71,6 @@ I write each output through an atomic file operation. This prevents a failed run
 
 `.github/workflows` contains the automated quality workflow
 
-## Run the Python pipeline
-
-I use Python 3.11 or newer.
-
-```bash
-python -m pip install -e ".[app,dev]"
-coding-review
-```
-
-The command reads the files in `data/raw` and writes the results to `data/processed`.
-
-I can choose a different review period or mapping version when needed.
-
-```bash
-coding-review \
-  --start-date 2026-01-01 \
-  --end-date 2026-06-30 \
-  --mapping-version DEMO_V1
-```
-
-## Run the dashboard
-
-```bash
-streamlit run app/dashboard.py
-```
-
-The dashboard presents result totals, review status counts, record filtering, patient and condition search, downloadable results, and unmapped diagnosis monitoring.
-
-## Run the application interface
-
-```bash
-uvicorn app.api:app --reload
-```
-
-I included a health check, a filtered review results endpoint, and a summary endpoint. FastAPI provides interactive documentation after the service starts.
-
-## Run the tests
-
-```bash
-python -m pytest
-```
-
-My tests verify the expected status totals, unique output grain, unmapped code visibility, voided claim exclusion, review period filtering, duplicate evidence handling, configuration validation, input contracts, and output creation.
-
-The automated GitHub workflow also checks the Python code, parses the Snowflake SQL, runs the pipeline, and measures test coverage whenever I push a change or open a pull request.
-
 ## Engineering decisions
 
 I keep diagnosis mappings outside the comparison logic so I can update a mapping version without rewriting the pipeline.
