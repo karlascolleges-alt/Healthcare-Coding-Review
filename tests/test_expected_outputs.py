@@ -1,9 +1,9 @@
 import csv
+import pathlib
 import unittest
-from pathlib import Path
 
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = pathlib.Path(__file__).resolve().parents[1]
 
 
 class ExpectedOutputTests(unittest.TestCase):
