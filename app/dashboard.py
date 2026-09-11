@@ -10,7 +10,7 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
-from app.api_client import WorkflowAPIClient, WorkflowAPIError
+from api_client import WorkflowAPIClient, WorkflowAPIError
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data" / "processed"
