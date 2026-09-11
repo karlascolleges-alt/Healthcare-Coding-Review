@@ -1,6 +1,0 @@
-patient_id,patient_name,demo_condition_group,submitted_codes,documented_codes,latest_claim_date,latest_documentation_date,submitted_present,documented_present,review_status,review_reason
-3,Coding Patient 003,DEMO_DIABETES,,E11.9,,2026-02-02,False,True,Potential Gap Review Required,Documented condition group is absent from submitted claims in the review period
-4,Coding Patient 004,DEMO_LUNG,J44.9,,2026-02-20,,True,False,Submitted Code Documentation Review Required,Submitted condition group is absent from documentation in the review period
-6,Coding Patient 006,DEMO_KIDNEY,,N18.31,,2026-03-19,False,True,Potential Gap Review Required,Documented condition group is absent from submitted claims in the review period
-8,Coding Patient 008,DEMO_LUNG,,J44.9,,2026-04-27,False,True,Potential Gap Review Required,Documented condition group is absent from submitted claims in the review period
-9,Coding Patient 009,DEMO_LUNG,J44.9,,2026-05-11,,True,False,Submitted Code Documentation Review Required,Submitted condition group is absent from documentation in the review period
