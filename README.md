@@ -1,142 +1,39 @@
 # Healthcare Coding Review Workflow Service
 
-This enhanced version turns the original reconciliation pipeline into a
-database-backed workflow service. It retains the Snowflake implementation,
-reusable Python package, command-line interface, and Streamlit dashboard while
-adding persisted pipeline runs, reviewer state, pagination, and typed API
-contracts.
+I built this project to compare diagnosis groups found in submitted claims with diagnosis groups found in clinical documentation. The system identifies differences that may require human review while keeping every result traceable to its supporting records.
 
-## Workflow API
+I developed the project as both a Snowflake data workflow and a reusable Python application. I later expanded it into a database backed workflow service that can execute reconciliation runs, track their progress, store review results, and support reviewer decisions through a FastAPI application programming interface.
 
-The FastAPI service now provides:
-
-* `POST /runs` to queue and execute a reconciliation run
-* `GET /runs/{run_id}` to retrieve status, timestamps, counts, and errors
-* `GET /reviews` to filter and paginate persisted review records
-* `PATCH /reviews/{review_id}` to record reviewer state and notes
-* `GET /health` to verify both the service and database connection
-
-Runs move through `queued`, `running`, `completed`, or `failed` states. Review
-records move through `pending`, `in_review`, or `resolved` states without
-overwriting the pipeline's original comparison classification.
-
-The deployed service uses PostgreSQL through SQLAlchemy. Local development and
-tests can use SQLite without changing application code.
-
-Start the complete PostgreSQL-backed environment:
-
-```bash
-docker compose up --build
-```
-
-Open the generated OpenAPI documentation at `http://localhost:8000/docs`.
-
-Run the API locally with SQLite:
-
-```bash
-pip install -e ".[app,dev]"
-uvicorn app.api:app --reload
-```
-
-Run every quality check:
-
-```bash
-ruff check .
-sqlfluff parse --dialect snowflake sql
-pytest
-```
+All information used in this project is synthetic. The application does not determine whether a diagnosis is medically correct or automatically change a claim. It organizes differences into an explainable review queue for a person to investigate.
 
 ## Live application
 
-I built an interactive dashboard to explore the coding review results, filter patient and condition records, examine unmapped diagnosis codes, and download the review queue.
+I built an interactive Streamlit dashboard for exploring coding review results, filtering patient and condition records, examining unmapped diagnosis codes, and downloading the review queue.
 
 [Open the live application](https://healthcare-coding-review.streamlit.app/)
 
-I built this project to compare diagnosis groups found in submitted claims with diagnosis groups found in clinical documentation. I wanted the result to be useful for review while keeping every decision traceable to the records that produced it.
-
-I used synthetic data throughout the project. The application does not determine whether a diagnosis is correct and does not change a claim. It identifies differences that a person can investigate.
-
 ## What I built
 
-I created two working implementations of the same comparison logic.
+I created a Snowflake implementation that models the workflow using relational tables, reusable diagnosis mappings, transformation queries, analytical views, audit records, and data quality checks.
 
-The Snowflake implementation models the warehouse workflow with relational tables, reusable mappings, transformation queries, analytical views, audit records, and data quality checks.
+I also built a reusable Python package that reads the source files, validates their structure and relationships, applies a configurable review period, reconciles diagnosis groups, explains every result, and writes the completed outputs safely.
 
-The Python implementation runs the full workflow locally. It reads source files, validates their structure and relationships, applies the review period, reconciles diagnosis groups, explains each result, and writes the final outputs safely.
+I developed a FastAPI service that executes the reconciliation pipeline and stores its results in a relational database. PostgreSQL supports the complete containerized environment, while SQLite provides a simple option for local development and isolated testing.
 
-I also built an interactive Streamlit dashboard and a read only FastAPI service so the results can be explored through both a visual application and an application interface.
+The application separates the reconciliation logic from the dashboard and application programming interface. This allows the same validated pipeline to support multiple interfaces without duplicating the underlying business rules.
 
-## Results
+## Workflow service
 
-My synthetic dataset produces 14 patient and condition group comparisons.
+The workflow service includes the following endpoints.
 
-1. Nine groups appear in both sources and receive a Captured status
-2. Three groups appear only in documentation and receive a Potential Gap Review Required status
-3. Two groups appear only in submitted claims and receive a Submitted Code Documentation Review Required status
-4. Five differences enter the human review queue
-5. Two intentionally unmapped diagnosis codes remain visible for investigation
+* `POST /runs` starts a reconciliation run
+* `GET /runs/{run_id}` returns the run status, timestamps, audit counts, and errors
+* `GET /reviews` returns filtered and paginated review records
+* `PATCH /reviews/{review_id}` saves reviewer progress and notes
+* `GET /health` confirms that the service and database are available
 
-## How my pipeline works
+Each reconciliation run moves through queued, running, completed, or failed states.
 
-```mermaid
-flowchart TD
-    A[Submitted diagnoses] --> C[Validation and mapping]
-    B[Documented diagnoses] --> C
-    C --> D[Patient condition summaries]
-    D --> E[Full source comparison]
-    E --> F[Review results]
-    F --> G[Dashboard and API]
-    C --> H[Unmapped code report]
-```
+Each review record has a separate workflow state of pending, in review, or resolved. Updating the workflow state does not overwrite the original comparison result produced by the pipeline.
 
-I validate each input before running the comparison. I check required columns, unique identifiers, and relationships between patients, claims, and diagnosis records.
-
-I filter both sources with the same review period and mapping version. I summarize each source to one record for each patient and condition group before comparing them. This prevents repeated claims or diagnoses from inflating the results.
-
-I use a full source comparison so I retain matches and differences from either side. I assign a clear reason to every result and keep supporting diagnosis codes and dates available for review.
-
-I write each output through an atomic file operation. This prevents a failed run from leaving behind a partially written result file.
-
-## Project structure
-
-`src/coding_review` contains the reusable Python package
-
-`data/raw` contains the synthetic source records
-
-`data/processed` contains reproducible pipeline outputs
-
-`sql` contains the Snowflake data model and transformation workflow
-
-`app/dashboard.py` contains the Streamlit review application
-
-`app/api.py` contains the FastAPI service
-
-`tests` contains unit, integration, edge case, and output tests
-
-`docs` contains the data dictionary and technical walkthrough
-
-`.github/workflows` contains the automated quality workflow
-
-## Engineering decisions
-
-I keep diagnosis mappings outside the comparison logic so I can update a mapping version without rewriting the pipeline.
-I preserve unmapped codes instead of silently dropping them. This makes data quality problems visible.
-I aggregate each source before comparing it. This protects the final patient and condition grain from many to many join inflation.
-I separate domain logic from the dashboard and API. The same reconciliation code can support different interfaces without being duplicated.
-I use only synthetic information. The repository contains no protected health information, account credentials, or proprietary coding mappings.
-
-## Limitations
-
-The project demonstrates a repeatable batch workflow with a small synthetic dataset
-
-## Technologies
-
-Python
-Snowflake SQL
-Streamlit
-FastAPI
-Pytest
-Ruff
-SQLFluff
-GitHub Actions
-Docker
+The
