@@ -1,76 +1,129 @@
 # Healthcare Coding Review Workflow Service
 
-## Connected application
+I built a deployed healthcare workflow application that compares diagnosis groups found in submitted claims with diagnosis groups found in clinical documentation.
 
-I connected the Streamlit dashboard to the FastAPI workflow service so the
-interface can now start reconciliation runs, retrieve persisted results, filter
-and paginate the review queue, and save reviewer decisions and notes.
+The application identifies matching records and differences that may require human review. Reviewers can filter the results, track their progress, add notes, and save their decisions in a PostgreSQL database.
 
-The dashboard automatically uses the connected workflow when `API_BASE_URL` is
-available. It uses the stored synthetic results in a clearly labeled
-demonstration mode when the API address has not been configured.
+I developed the reconciliation pipeline as a reusable Python package and exposed it through a FastAPI service. The Streamlit dashboard communicates with the API, while SQLAlchemy manages workflow data stored in PostgreSQL.
 
-The connected workflow works as follows.
-
-1. A user starts a reconciliation run from Streamlit
-2. Streamlit sends the run request to FastAPI
-3. FastAPI validates the request and executes the reusable Python pipeline
-4. SQLAlchemy stores the run history and review records in PostgreSQL
-5. Streamlit retrieves the database backed results through the API
-6. A reviewer changes a record to pending, in review, or resolved
-7. FastAPI saves the reviewer status and notes without changing the original
-   pipeline classification
-
-## Deployment configuration
-
-The repository includes `render.yaml` for deploying the FastAPI service from
-GitHub. The deployed service requires a PostgreSQL connection string named
-`DATABASE_URL`.
-
-After the API is deployed, add its public address to Streamlit Community Cloud
-under App settings and Secrets.
-
-```toml
-API_BASE_URL = "https://your-api-name.onrender.com"
-```
-
-Do not add a trailing slash and do not commit database credentials or Streamlit
-Secrets to GitHub.
-
-I built this project to compare diagnosis groups found in submitted claims with diagnosis groups found in clinical documentation. The system identifies differences that may require human review while keeping every result traceable to its supporting records.
-
-I developed the project as both a Snowflake data workflow and a reusable Python application. I later expanded it into a database backed workflow service that can execute reconciliation runs, track their progress, store review results, and support reviewer decisions through a FastAPI application programming interface.
-
-All information used in this project is synthetic. The application does not determine whether a diagnosis is medically correct or automatically change a claim. It organizes differences into an explainable review queue for a person to investigate.
+All records and diagnosis mappings used in this project are synthetic. The application does not determine coding accuracy or modify claims. It organizes differences into an explainable queue for human investigation.
 
 ## Live application
 
-I built an interactive Streamlit dashboard for exploring coding review results, filtering patient and condition records, examining unmapped diagnosis codes, and downloading the review queue.
+[Open the Streamlit application](https://healthcare-coding-review.streamlit.app/)
 
-[Open the live application](https://healthcare-coding-review.streamlit.app/)
+[Explore the FastAPI documentation](https://healthcare-coding-review.onrender.com/docs)
 
-## What I built
+[Check the API and database health](https://healthcare-coding-review.onrender.com/health)
 
-I created a Snowflake implementation that models the workflow using relational tables, reusable diagnosis mappings, transformation queries, analytical views, audit records, and data quality checks.
+The FastAPI service uses a free hosting plan and may require approximately one minute to wake after a period of inactivity.
 
-I also built a reusable Python package that reads the source files, validates their structure and relationships, applies a configurable review period, reconciles diagnosis groups, explains every result, and writes the completed outputs safely.
+## Deployed architecture
 
-I developed a FastAPI service that executes the reconciliation pipeline and stores its results in a relational database. PostgreSQL supports the complete containerized environment, while SQLite provides a simple option for local development and isolated testing.
+The Streamlit dashboard provides the user interface.
 
-The application separates the reconciliation logic from the dashboard and application programming interface. This allows the same validated pipeline to support multiple interfaces without duplicating the underlying business rules.
+The FastAPI service validates requests, starts reconciliation runs, retrieves stored results, and saves reviewer updates.
 
-## Workflow service
+The Python pipeline validates and compares the synthetic claim and documentation data.
 
-The workflow service includes the following endpoints.
+Neon PostgreSQL stores pipeline history, review records, workflow statuses, and reviewer notes.
 
-* `POST /runs` starts a reconciliation run
-* `GET /runs/{run_id}` returns the run status, timestamps, audit counts, and errors
-* `GET /reviews` returns filtered and paginated review records
-* `PATCH /reviews/{review_id}` saves reviewer progress and notes
-* `GET /health` confirms that the service and database are available
+Render hosts the containerized FastAPI service.
 
-Each reconciliation run moves through queued, running, completed, or failed states.
+Streamlit Community Cloud hosts the dashboard.
 
-Each review record has a separate workflow state of pending, in review, or resolved. Updating the workflow state does not overwrite the original comparison result produced by the pipeline.
+## How the application works
 
-The
+1. A user selects a review period and starts a reconciliation run
+
+2. Streamlit sends the request to the FastAPI service
+
+3. FastAPI validates the request and creates a queued pipeline run
+
+4. The reusable Python pipeline validates and reconciles the source records
+
+5. SQLAlchemy stores the run metadata and comparison results in PostgreSQL
+
+6. Streamlit retrieves the database backed results through the API
+
+7. A reviewer marks records as pending, in review, or resolved and adds notes
+
+8. FastAPI saves the reviewer updates without replacing the original pipeline classification
+
+## Results
+
+The synthetic dataset produces 14 patient and condition group comparisons.
+
+Nine condition groups appear in both submitted claims and clinical documentation.
+
+Three condition groups appear only in documentation and require potential gap review.
+
+Two condition groups appear only in submitted claims and require documentation review.
+
+Five differences enter the human review queue.
+
+Three unmapped diagnosis code occurrences remain visible for investigation.
+
+## Workflow API
+
+`POST /runs` starts a reconciliation run
+
+`GET /runs/{run_id}` retrieves run status, timestamps, counts, and errors
+
+`GET /reviews` retrieves filtered and paginated review records
+
+`PATCH /reviews/{review_id}` saves reviewer status and notes
+
+`GET /health` verifies the API and database connection
+
+Pipeline runs move through queued, running, completed, and failed states.
+
+Review records move through pending, in review, and resolved states. The reviewer workflow status remains separate from the original comparison result so the system preserves both automated output and human activity.
+
+## Engineering practices
+
+I separated the domain logic from the dashboard, API, and database layers so multiple interfaces can use the same reconciliation pipeline.
+
+I implemented input schema validation, unique identifier checks, relationship validation, configurable review periods, versioned diagnosis mappings, and unmapped code reporting.
+
+I aggregated each source to one patient and condition group before comparison to prevent duplicate evidence from inflating the results.
+
+I used atomic file operations to prevent failed executions from leaving partially written output files.
+
+I added typed API contracts, structured errors, database backed pagination, transaction handling, workflow timestamps, health monitoring, and application logging.
+
+I created automated unit and integration tests covering validation, reconciliation behavior, expected outputs, API persistence, pagination, reviewer updates, command line execution, and API client errors.
+
+GitHub Actions runs Python quality checks, parses the Snowflake SQL, executes the pipeline, and runs the automated test suite with an 85 percent coverage requirement for the reusable pipeline package.
+
+## Technologies
+
+Python
+
+FastAPI
+
+Streamlit
+
+PostgreSQL
+
+SQLAlchemy
+
+Snowflake SQL
+
+Pydantic
+
+HTTPX
+
+Pytest
+
+Ruff
+
+SQLFluff
+
+Docker
+
+GitHub Actions
+
+Render
+
+Neon
