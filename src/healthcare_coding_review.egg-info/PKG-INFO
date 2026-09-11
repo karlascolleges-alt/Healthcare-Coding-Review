@@ -1,0 +1,21 @@
+Metadata-Version: 2.4
+Name: healthcare-coding-review
+Version: 1.0.0
+Summary: Explainable diagnosis reconciliation pipeline using synthetic healthcare data
+Requires-Python: >=3.11
+License-File: LICENSE
+Provides-Extra: app
+Requires-Dist: fastapi<1,>=0.115; extra == "app"
+Requires-Dist: pandas<3,>=2.2; extra == "app"
+Requires-Dist: plotly<7,>=5.24; extra == "app"
+Requires-Dist: psycopg[binary]<4,>=3.2; extra == "app"
+Requires-Dist: sqlalchemy<3,>=2.0; extra == "app"
+Requires-Dist: streamlit<2,>=1.40; extra == "app"
+Requires-Dist: uvicorn<1,>=0.32; extra == "app"
+Provides-Extra: dev
+Requires-Dist: httpx<1,>=0.27; extra == "dev"
+Requires-Dist: pytest<9,>=8.3; extra == "dev"
+Requires-Dist: pytest-cov<7,>=6; extra == "dev"
+Requires-Dist: ruff<1,>=0.9; extra == "dev"
+Requires-Dist: sqlfluff<4,>=3.4; extra == "dev"
+Dynamic: license-file

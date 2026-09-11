@@ -1,0 +1,16 @@
+
+[app]
+fastapi<1,>=0.115
+pandas<3,>=2.2
+plotly<7,>=5.24
+psycopg[binary]<4,>=3.2
+sqlalchemy<3,>=2.0
+streamlit<2,>=1.40
+uvicorn<1,>=0.32
+
+[dev]
+httpx<1,>=0.27
+pytest<9,>=8.3
+pytest-cov<7,>=6
+ruff<1,>=0.9
+sqlfluff<4,>=3.4

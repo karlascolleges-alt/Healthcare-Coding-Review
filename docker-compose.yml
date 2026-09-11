@@ -1,0 +1,27 @@
+services:
+  database:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: coding_review
+      POSTGRES_USER: coding_review
+      POSTGRES_PASSWORD: local_development_only
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U coding_review"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - coding_review_data:/var/lib/postgresql/data
+
+  api:
+    build: .
+    environment:
+      DATABASE_URL: postgresql+psycopg://coding_review:local_development_only@database:5432/coding_review
+    ports:
+      - "8000:8000"
+    depends_on:
+      database:
+        condition: service_healthy
+
+volumes:
+  coding_review_data:
