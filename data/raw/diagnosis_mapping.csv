@@ -1,7 +1,0 @@
-mapping_version,diagnosis_code,diagnosis_name,demo_condition_group,active_flag
-DEMO_V1,I10,Hypertension,DEMO_CARDIOVASCULAR,true
-DEMO_V1,E11.9,Type 2 diabetes,DEMO_DIABETES,true
-DEMO_V1,I50.9,Heart failure,DEMO_HEART_FAILURE,true
-DEMO_V1,J44.9,Chronic obstructive lung disease,DEMO_LUNG,true
-DEMO_V1,N18.31,Chronic kidney disease stage 3,DEMO_KIDNEY,true
-DEMO_V1,F32.9,Depressive disorder,DEMO_BEHAVIORAL,true
