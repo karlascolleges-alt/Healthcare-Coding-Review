@@ -1,6 +1,0 @@
-patient_id,demo_condition_group,submitted_codes,documented_codes,review_status
-3,DEMO_DIABETES,,E11.9,Potential Gap Review Required
-4,DEMO_LUNG,J44.9,,Submitted Code Documentation Review Required
-6,DEMO_KIDNEY,,N18.31,Potential Gap Review Required
-8,DEMO_LUNG,,J44.9,Potential Gap Review Required
-9,DEMO_LUNG,J44.9,,Submitted Code Documentation Review Required
