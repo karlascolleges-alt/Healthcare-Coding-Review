@@ -10,7 +10,7 @@ requires-python = ">=3.11"
 dependencies = []
 
 [project.optional-dependencies]
-app = ["fastapi>=0.115,<1", "pandas>=2.2,<3", "plotly>=5.24,<7", "psycopg[binary]>=3.2,<4", "sqlalchemy>=2.0,<3", "streamlit>=1.40,<2", "uvicorn>=0.32,<1"]
+app = ["fastapi>=0.115,<1", "httpx>=0.27,<1", "pandas>=2.2,<3", "plotly>=5.24,<7", "psycopg[binary]>=3.2,<4", "sqlalchemy>=2.0,<3", "streamlit>=1.40,<2", "uvicorn>=0.32,<1"]
 dev = ["httpx>=0.27,<1", "pytest>=8.3,<9", "pytest-cov>=6,<7", "ruff>=0.9,<1", "sqlfluff>=3.4,<4"]
 
 [project.scripts]

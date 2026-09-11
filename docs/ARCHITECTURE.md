@@ -1,5 +1,22 @@
 # Architecture
 
+## Connected interface
+
+The Streamlit application uses `WorkflowAPIClient` as its only connection to
+the workflow service. The client owns HTTP communication and translates network
+or service failures into messages the interface can display safely.
+
+When `API_BASE_URL` is configured, Streamlit checks service and database health,
+starts pipeline runs, retrieves run metadata, requests filtered pages of review
+records, and persists reviewer updates. When the setting is absent, the
+dashboard remains usable with stored synthetic demonstration results and
+clearly identifies that mode to the user.
+
+The dashboard does not connect directly to PostgreSQL. FastAPI remains the
+boundary for validation, workflow execution, and persistence. This keeps
+database credentials out of the interface and ensures that every consumer uses
+the same application rules.
+
 ## Workflow-service architecture
 
 1. A client submits a typed run request to `POST /runs`.

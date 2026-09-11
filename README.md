@@ -1,5 +1,42 @@
 # Healthcare Coding Review Workflow Service
 
+## Connected application
+
+I connected the Streamlit dashboard to the FastAPI workflow service so the
+interface can now start reconciliation runs, retrieve persisted results, filter
+and paginate the review queue, and save reviewer decisions and notes.
+
+The dashboard automatically uses the connected workflow when `API_BASE_URL` is
+available. It uses the stored synthetic results in a clearly labeled
+demonstration mode when the API address has not been configured.
+
+The connected workflow works as follows.
+
+1. A user starts a reconciliation run from Streamlit
+2. Streamlit sends the run request to FastAPI
+3. FastAPI validates the request and executes the reusable Python pipeline
+4. SQLAlchemy stores the run history and review records in PostgreSQL
+5. Streamlit retrieves the database backed results through the API
+6. A reviewer changes a record to pending, in review, or resolved
+7. FastAPI saves the reviewer status and notes without changing the original
+   pipeline classification
+
+## Deployment configuration
+
+The repository includes `render.yaml` for deploying the FastAPI service from
+GitHub. The deployed service requires a PostgreSQL connection string named
+`DATABASE_URL`.
+
+After the API is deployed, add its public address to Streamlit Community Cloud
+under App settings and Secrets.
+
+```toml
+API_BASE_URL = "https://your-api-name.onrender.com"
+```
+
+Do not add a trailing slash and do not commit database credentials or Streamlit
+Secrets to GitHub.
+
 I built this project to compare diagnosis groups found in submitted claims with diagnosis groups found in clinical documentation. The system identifies differences that may require human review while keeping every result traceable to its supporting records.
 
 I developed the project as both a Snowflake data workflow and a reusable Python application. I later expanded it into a database backed workflow service that can execute reconciliation runs, track their progress, store review results, and support reviewer decisions through a FastAPI application programming interface.
